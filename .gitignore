@@ -1,4 +1,6 @@
 node_modules/
 *.log
 *.aof
+*.rdb
 config.js
+.DS_Store

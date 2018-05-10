@@ -1,16 +1,13 @@
-exports.Keys = {
-  temperature: 'temperature',
-  targetTemperature: 'targetTemperature',
-  heaterMode: 'heaterMode',
-  status: 'status',
+exports.RootKeys = {
+  thermostat: 'thermostat',
 };
 
-exports.HeaterMode = {
+exports.ThermostatMode = {
   warm: 'warm',
   cool: 'cool',
 };
 
-exports.Status = {
+exports.ThermostatStatus = {
   off: 'off',
   on: 'on',
 };

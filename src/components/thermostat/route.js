@@ -1,21 +1,18 @@
-const { Keys } = require('../../lib/constants');
+const { RootKeys } = require('../../lib/constants');
 const db = require('../../lib/db');
 
 exports.route = '/thermostat';
 
 exports.get = async function(req, res) {
-  const temperature = await db.get(Keys.temperature);
-  const targetTemperature = await db.get(Keys.targetTemperature);
-  const heaterMode = await db.get(Keys.heaterMode);
-
-  if (temperature === null || targetTemperature === null || heaterMode === null) {
+  const thermostat = await db.hgetall(RootKeys.thermostat);
+  if (thermostat === null) {
     res.status(500).send();
   }
   else {
     const result = {};
-    result[Keys.temperature] = temperature;
-    result[Keys.targetTemperature] = targetTemperature;
-    result[Keys.heaterMode] = heaterMode;
+    result.temperature = parseFloat(thermostat.temperature);
+    result.targetTemperature = parseFloat(thermostat.targetTemperature);
+    result.mode = thermostat.mode;
     res.send(result);
   }
 }
@@ -26,16 +23,26 @@ exports.patch = async function(req, res) {
       return;
     }
 
-    if (req.body.targetTemperature !== undefined) {
-      if (await db.set(Keys.targetTemperature, req.body.targetTemperature) !== 'OK') {
-        res.status(500).send();
-      }
+    const thermostat = await db.hgetall(RootKeys.thermostat);
+    if (thermostat === null) {
+      res.status(500).send();
+      return;
     }
 
-    if (req.body.heaterMode !== undefined) {
-      if (await db.set(Keys.heaterMode, req.body.heaterMode) !== 'OK') {
-        res.status(500).send();
+    const keys = [
+      'targetTemperature',
+      'mode',
+    ];
+
+    keys.forEach(key => {
+      if (req.body[key] !== undefined) {
+        thermostat[key] = req.body[key];
       }
+    });
+
+    if (await db.hmset(RootKeys.thermostat, thermostat) != 'OK') {
+      res.status(500).send();
+      return;
     }
 
     res.send();
