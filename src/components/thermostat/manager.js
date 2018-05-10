@@ -4,12 +4,8 @@ const db = require('../../lib/db');
 const dbChangeEmitter = require('../../lib/dbChangeEmitter');
 const switchDevice = require('../../lib/devices/switch');
 
-const DEFAULT_TEMPERATURE = 21;
-const DEFAULT_TARGET_TEMPERATURE = 21;
 const TARGET_TEMPERATURE_OFFSET = 1;
-const DEFAULT_MODE = ThermostatMode.warm;
 const TEMPERATURE_FETCH_INTERVAL = 5000; //30s
-const SWITCH_IP = config.thermostatSwitchIP;
 
 // Public
 
@@ -21,9 +17,9 @@ exports.init = async () => {
   let thermostat = await db.hgetall(RootKeys.thermostat);
   if (thermostat === null) {
     thermostat = {};
-    thermostat.temperature = DEFAULT_TEMPERATURE;
-    thermostat.targetTemperature = DEFAULT_TARGET_TEMPERATURE;
-    thermostat.mode = DEFAULT_MODE;
+    thermostat.temperature = 21;
+    thermostat.targetTemperature = 21;
+    thermostat.mode = ThermostatMode.warm;
     await db.hmset(RootKeys.thermostat, thermostat);
   }
 
@@ -56,21 +52,21 @@ async function refreshSwitch() {
   if (thermostat.mode == ThermostatMode.warm) {
     if (thermostat.temperature < minTargetTemperature) {
       // Turn it on
-      await switchDevice.turnOn(SWITCH_IP);
+      await switchDevice.turnOn(config.thermostatSwitchIP);
     }
     else {
       // Turn it off
-      await switchDevice.turnOff(SWITCH_IP);
+      await switchDevice.turnOff(config.thermostatSwitchIP);
     }
   }
   else if (thermostat.mode == ThermostatMode.cool) {
     if (thermostat.temperature > maxTargetTemperature) {
       // Turn it on
-      await switchDevice.turnOn(SWITCH_IP);
+      await switchDevice.turnOn(config.thermostatSwitchIP);
     }
     else {
       // Turn it off
-      await switchDevice.turnOff(SWITCH_IP);
+      await switchDevice.turnOff(config.thermostatSwitchIP);
     }
   }
 }

@@ -1,5 +1,6 @@
 exports.RootKeys = {
   thermostat: 'thermostat',
+  users: 'users',
 };
 
 exports.ThermostatMode = {
@@ -11,3 +12,13 @@ exports.ThermostatStatus = {
   off: 'off',
   on: 'on',
 };
+
+exports.UserAwayMethod = {
+  auto: 'auto',
+  manual: 'manual',
+}
+
+exports.UserAwayValue = {
+  away: 'away',
+  home: 'home',
+}

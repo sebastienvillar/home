@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const thermostatRoute = require('./components/thermostat/route');
+const thermostatRoutes = require('./components/thermostat/routes');
 const thermostatManager = require('./components/thermostat/manager');
+const usersRoutes = require('./components/users/routes');
+const usersManager = require('./components/users/manager');
 
 // Init managers
 thermostatManager.init()
+usersManager.init();
 
 // Create app
 const app = express();
@@ -13,8 +16,16 @@ app.use(bodyParser.json());
 
 
 // Create routes
-app.get(thermostatRoute.route, thermostatRoute.get);
-app.patch(thermostatRoute.route, thermostatRoute.patch);
+const mainRoutes = [thermostatRoutes, usersRoutes];
+mainRoutes.forEach(routes => {
+  for (route in routes) {
+    const methodHash = routes[route];
+    for (methodKey in methodHash) {
+      const methodFunction = methodHash[methodKey];
+      app[methodKey](route, methodFunction);
+    }
+  }
+});
 
 // Start
 const port = process.env.PORT || 8080;
