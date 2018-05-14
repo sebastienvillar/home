@@ -3,4 +3,4 @@ node_modules/
 *.aof
 *.rdb
 config.js
-.DS_Store
+*.DS_Store
