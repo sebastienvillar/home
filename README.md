@@ -37,6 +37,14 @@ Reconfigure the interface
 wpa_cli -i wlan0 reconfigure
 ```
 
+## Expand space so OS can use full SD card
+
+```
+sudo raspi-config
+```
+
+Go to Advanced options and expand space
+
 ## Install git
 
 `sudo apt-get install git`
@@ -46,6 +54,22 @@ wpa_cli -i wlan0 reconfigure
 ```
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
+```
+
+## Install Redis
+
+```
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make
+cd src
+sudo cp redis-server /usr/local/bin
+sudo cp redis-cli /usr/local/bin
+cd ..
+cd ..
+rm redis-stable.tar.gz
+rm -r redis-stable
 ```
 
 # Develop on Mac on the Pi disk
