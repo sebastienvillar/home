@@ -10,7 +10,7 @@ exports.turnOn = async function(ip) {
   }).then(() => {
     return 'success';
   }).catch((e) => {
-    console.error(`Could not turn on switch: ${e}`);
+    console.log(`Could not turn on switch: ${e}`);
     return 'failure';
   });
 }
@@ -23,7 +23,7 @@ exports.turnOff = async function(ip) {
   }).then(() => {
     return 'success';
   }).catch((e) => {
-    console.error(`Could not turn off switch: ${e}`);
+    console.log(`Could not turn off switch: ${e}`);
     return 'failure';
   });
 }

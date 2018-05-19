@@ -39,7 +39,7 @@ async function refreshTemperature() {
   }
 
   temperature = await thermometer.read(config.thermostatThermometerPin, TEMPERATURE_RETRIES_MAX);
-  if (temperature !== undefined) {
+  if (temperature !== undefined && temperature !== null) {
     thermostat.temperature = temperature
     await db.hmset(RootKeys.thermostat, thermostat);
   }

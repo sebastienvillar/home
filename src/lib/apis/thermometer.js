@@ -10,6 +10,10 @@ exports.read = async function(pin, retries) {
   };
 
   return runAsync('main.py', options).then((result) => {
+    if (result === null) {
+      console.log(`Could not get temperature`)
+      return null;
+    }
     if (!result || !result[0]) {
       console.error(`Invalid data from thermometer: ${result}`)
       return undefined;
