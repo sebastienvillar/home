@@ -50,5 +50,6 @@ async function patch(req, res) {
     return;
   }
 
+  console.log(`Patch thermostat: ${JSON.stringify(thermostat)}`);
   res.send();
 }

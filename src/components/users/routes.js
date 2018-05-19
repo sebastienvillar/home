@@ -59,6 +59,7 @@ async function patchUser(req, res) {
     return;
   }
 
+  console.log(`Patch user: ${JSON.stringify(user)}`);
   res.send();
 }
 

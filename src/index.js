@@ -4,6 +4,7 @@ const thermostatRoutes = require('./components/thermostat/routes');
 const thermostatManager = require('./components/thermostat/manager');
 const usersRoutes = require('./components/users/routes');
 const usersManager = require('./components/users/manager');
+const morgan = require('morgan');
 
 // Init managers
 thermostatManager.init()
@@ -11,6 +12,7 @@ usersManager.init();
 
 // Create app
 const app = express();
+app.use(morgan('tiny'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
