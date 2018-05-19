@@ -72,6 +72,19 @@ rm redis-stable.tar.gz
 rm -r redis-stable
 ```
 
+## Add config.js in root of project
+
+```
+module.exports = {
+  thermostatSwitchIP: <IP>,
+  thermostatThermometerPin: <PIN>,
+  contactSmtp: <SMTP>,
+  contactEmail: <EMAIL>,
+  contactUsername: <USERNAME>,
+  contactPassword: <PASSWORD>,
+};
+```
+
 # Develop on Mac on the Pi disk
 
 ## Setup
