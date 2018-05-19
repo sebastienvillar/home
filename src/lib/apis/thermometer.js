@@ -9,5 +9,11 @@ exports.read = async function(pin, retries) {
     args: [pin, retries]
   };
 
-  return runAsync('main.py', options);
+  return runAsync('main.py', options).then((result) => {
+    if (!result || !result[0]) {
+      return undefined;
+    }
+
+    return result[0].temperature;
+  });
 }

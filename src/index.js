@@ -14,7 +14,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
 // Create routes
 const mainRoutes = [thermostatRoutes, usersRoutes];
 mainRoutes.forEach(routes => {
