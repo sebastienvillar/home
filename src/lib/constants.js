@@ -1,6 +1,16 @@
-exports.RootKeys = {
-  thermostat: 'thermostat',
-  users: 'users',
+exports.Keys = {
+  thermostat: {
+    temperature: 'thermostatTemperature',
+    targetTemperature: 'thermostatTargetTemperature',
+    mode: 'thermostatMode',
+    status: 'thermostatStatus',
+  },
+  userIds: 'userIds',
+  user: {
+    id: 'user-%s-id',
+    awayMethod: 'user-%s-awayMethod',
+    awayValue: 'user-%s-awayValue',
+  },
 };
 
 exports.ThermostatMode = {

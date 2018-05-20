@@ -1,5 +1,7 @@
-const { RootKeys } = require('../../lib/constants');
+const { Keys } = require('../../lib/constants');
+const thermostatManager = require('./manager');
 const db = require('../../lib/db');
+const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/thermostat': {
@@ -9,17 +11,8 @@ module.exports = {
 }
 
 async function get(req, res) {
-  const thermostat = await db.hgetall(RootKeys.thermostat);
-  if (thermostat === null) {
-    res.status(500).send();
-    return;
-  }
-
-  res.send({
-    temperature: parseFloat(thermostat.temperature),
-    targetTemperature: parseFloat(thermostat.targetTemperature),
-    mode: thermostat.mode,
-  });
+  const json = await thermostatManager.get();
+  res.send(json);
 }
 
 async function patch(req, res) {
@@ -28,28 +21,16 @@ async function patch(req, res) {
     return;
   }
 
-  const thermostat = await db.hgetall(RootKeys.thermostat);
-  if (thermostat === null) {
-    res.status(500).send();
-    return;
+  const keyToValue = {};
+
+  if (req.body.targetTemperature !== undefined) {
+    keyToValue[Keys.thermostat.targetTemperature] = req.body.targetTemperature;
   }
 
-  const keys = [
-    'targetTemperature',
-    'mode',
-  ];
-
-  keys.forEach(key => {
-    if (req.body[key] !== undefined) {
-      thermostat[key] = req.body[key];
-    }
-  });
-
-  if (await db.hmset(RootKeys.thermostat, thermostat) != 'OK') {
-    res.status(500).send();
-    return;
+  if (req.body.mode !== undefined) {
+    keyToValue[Keys.thermostat.mode] = req.body.mode;
   }
 
-  console.log(`Patch thermostat: ${JSON.stringify(thermostat)}`);
-  res.send();
+  await dbHelper.setAllAsync(keyToValue);
+  return res.send();
 }

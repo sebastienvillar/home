@@ -1,6 +1,7 @@
-const { RootKeys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
+const { Keys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
 const usersManager = require('./manager');
 const db = require('../../lib/db');
+const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/users/:id': {
@@ -13,20 +14,9 @@ module.exports = {
 }
 
 async function getUser(req, res) {
-  const baseId = req.params.id;
-  const userId = createUserId(baseId);
-  let user = await db.hgetall(userId);
-
-  if (user === null) {
-    user = createUser(baseId);
-    await db.hmset(userId, user);
-    await db.sadd(RootKeys.users, userId);
-  }
-
-  res.send({
-    awayMethod: user.awayMethod,
-    awayValue: user.awayValue,
-  });
+  const id = req.params.id;
+  const json = await usersManager.get(id)
+  res.send(json);
 }
 
 async function patchUser(req, res) {
@@ -35,32 +25,25 @@ async function patchUser(req, res) {
     return;
   }
 
-  const baseId = req.params.id;
-  const userId = createUserId(baseId);
-  let user = await db.hgetall(userId);
-  if (user === null) {
-    res.status(500).send();
+  const id = req.params.id;
+  const ids = await db.smembersAsync(Keys.userIds);
+  if (!ids.includes(id)) {
+    res.status(400).send();
     return;
   }
 
-  const keys = [
-    'awayMethod',
-    'awayValue',
-  ];
+  const keyToValue = {};
 
-  keys.forEach(key => {
-    if (req.body[key] !== undefined) {
-      user[key] = req.body[key];
-    }
-  });
-
-  if (await db.hmset(userId, user) != 'OK') {
-    res.status(500).send();
-    return;
+  if (req.body.awayMethod !== undefined) {
+    keyToValue[usersManager.createUserKey(Keys.user.awayMethod, id)] = req.body.awayMethod;
   }
 
-  console.log(`Patch user: ${JSON.stringify(user)}`);
-  res.send();
+  if (req.body.awayValue !== undefined) {
+    keyToValue[usersManager.createUserKey(Keys.user.awayValue, id)] = req.body.awayValue;
+  }
+
+  await dbHelper.setAllAsync(keyToValue);
+  return res.send();
 }
 
 async function getUsers(req, res) {
@@ -68,16 +51,4 @@ async function getUsers(req, res) {
   res.send({
     awayValue: awayValue
   });
-}
-
-function createUser(id) {
-  return {
-    id: id,
-    awayMethod: UserAwayMethod.manual,
-    awayValue: UserAwayValue.away,
-  }
-}
-
-function createUserId(id) {
-  return `${RootKeys.users}-${id}`;
 }
