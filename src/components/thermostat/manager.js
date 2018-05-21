@@ -8,7 +8,7 @@ const usersManager = require('../users/manager');
 const thermometer = require('../../lib/apis/thermometer');
 const util = require('util');
 
-const TARGET_TEMPERATURE_OFFSET = 1;
+const TARGET_TEMPERATURE_OFFSET = 0.5;
 const TEMPERATURE_FETCH_INTERVAL = 45 * 1000; // 45s
 const TEMPERATURE_RETRIES_MAX = 5;
 const SWITCH_KEEP_ALIVE_INTERVAL = 60 * 60 * 1000 // 1h
@@ -81,14 +81,28 @@ async function refreshStatus() {
       // Home
       const thermostat = await exports.get();
       const temperature = thermostat.temperature;
-      const minTargetTemperature = thermostat.targetTemperature - TARGET_TEMPERATURE_OFFSET;
-      const maxTargetTemperature = thermostat.targetTemperature + TARGET_TEMPERATURE_OFFSET;
 
       if (thermostat.mode == ThermostatMode.warm) {
-        return temperature < minTargetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        const offsetTargetTemperature = thermostat.targetTemperature - TARGET_TEMPERATURE_OFFSET;
+        if (thermostat.status === ThermostatStatus.on) {
+          // Keep going until we're at target temperature
+          return temperature < targetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        }
+        else {
+          // Trigger only if lower than offsetTargetTemperature
+          return temperature < offsetTargetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        }
       }
       else {
-        return temperature > maxTargetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        const offsetTargetTemperature = thermostat.targetTemperature + TARGET_TEMPERATURE_OFFSET;
+        if (thermostat.status === ThermostatStatus.on) {
+          // Keep going until we're at target temperature
+          return temperature > targetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        }
+        else {
+          // Trigger only if higher than offsetTargetTemperature
+          return temperature > offsetTargetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
+        }
       }
     }
     else {
