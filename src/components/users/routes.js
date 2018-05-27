@@ -1,34 +1,25 @@
 const { Keys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
+const rootManager = require('../root/manager');
 const usersManager = require('./manager');
 const db = require('../../lib/db');
 const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/users/:id': {
-    get: getUser,
     patch: patchUser,
   },
-  '/users': {
-    get: getUsers,
-  },
-}
-
-async function getUser(req, res) {
-  const id = req.params.id;
-  const json = await usersManager.get(id)
-  res.send(json);
 }
 
 async function patchUser(req, res) {
-  if (!req.body) {
-    res.status(400).send();
+  if (!req.body || !req.query.id) {
+    res.send(400);
     return;
   }
 
   const id = req.params.id;
   const ids = await db.smembersAsync(Keys.userIds);
   if (!ids.includes(id)) {
-    res.status(400).send();
+    res.sendStatus(400);
     return;
   }
 
@@ -43,12 +34,6 @@ async function patchUser(req, res) {
   }
 
   await dbHelper.setAllAsync(keyToValue);
-  return res.send();
-}
-
-async function getUsers(req, res) {
-  const awayValue = await usersManager.getAwayValue();
-  res.send({
-    awayValue: awayValue
-  });
+  const result = await rootManager.get(req.query.id);
+  return res.status(200).send(result);
 }

@@ -9,7 +9,7 @@ exports.init = async () => {
   // Nothing to do
 }
 
-exports.get = async function(id) {
+exports.getUser = async function(id) {
   await exports.createUserIfNeeded(id);
   
   const keys = [
@@ -25,6 +25,12 @@ exports.get = async function(id) {
     awayMethod: keyToValue[keys[1]],
     awayValue: keyToValue[keys[2]],
   };
+}
+
+exports.getUsers = async function() {
+  return {
+    awayValue: await getAwayValue(),
+  }
 }
 
 exports.createUserIfNeeded = async function(id) {
@@ -45,7 +51,7 @@ exports.createUserKey = function(key, id) {
   return util.format(key, id);
 }
 
-exports.getAwayValue = async () => {
+async function getAwayValue() {
   const ids = await db.smembersAsync(Keys.userIds);
   const awayValueKeys = ids.map(id => exports.createUserKey(Keys.user.awayValue, id));
   const keyToValue = await dbHelper.getAllAsync(awayValueKeys);

@@ -2,11 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./lib/db');
 const dbListener = require('./lib/dbListener');
+const rootRoutes = require('./components/root/routes');
+const rootManager = require('./components/root/manager');
 const thermostatRoutes = require('./components/thermostat/routes');
 const thermostatManager = require('./components/thermostat/manager');
 const usersRoutes = require('./components/users/routes');
 const usersManager = require('./components/users/manager');
 const morgan = require('morgan');
+const requestId = require('express-request-id');
 
 async function init() {
   // Init db and listener
@@ -18,17 +21,19 @@ async function init() {
   await dbListener.init();
   
   // Init managers
+  rootManager.init();
   thermostatManager.init()
   usersManager.init();
 
   // Create app
   const app = express();
   app.use(morgan('tiny'));
+  app.use(requestId());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
   // Create routes
-  const mainRoutes = [thermostatRoutes, usersRoutes];
+  const mainRoutes = [rootRoutes, thermostatRoutes, usersRoutes];
   mainRoutes.forEach(routes => {
     for (route in routes) {
       const methodHash = routes[route];

@@ -76,7 +76,7 @@ async function refreshTemperature() {
 async function refreshStatus() {
   const currentStatus = await db.getAsync(Keys.thermostat.status);
   const newStatus = await (async () => {
-    const awayValue = await usersManager.getAwayValue();
+    const awayValue = await usersManager.getUsers().awayValue;
     if (awayValue === UserAwayValue.home) {
       // Home
       const thermostat = await exports.get();

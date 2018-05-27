@@ -1,23 +1,18 @@
 const { Keys } = require('../../lib/constants');
+const rootManager = require('../root/manager');
 const thermostatManager = require('./manager');
 const db = require('../../lib/db');
 const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/thermostat': {
-    get: get,
     patch: patch,
   },
 }
 
-async function get(req, res) {
-  const json = await thermostatManager.get();
-  res.send(json);
-}
-
 async function patch(req, res) {
-  if (!req.body) {
-    res.status(400).send();
+  if (!req.body || !req.query.id) {
+    res.sendStatus(400);
     return;
   }
 
@@ -32,5 +27,6 @@ async function patch(req, res) {
   }
 
   await dbHelper.setAllAsync(keyToValue);
-  return res.send();
+  const result = await rootManager.get(req.query.id);
+  return res.status(200).send(result);
 }
