@@ -5,7 +5,7 @@ const TIMEOUT = 20000; // 20 seconds
 exports.turnOn = async function(ip) {
   return request({
     'method': 'GET',
-    'uri': `http://${ip}/cm?cmnd=Power%20On`,
+    'uri': `http://${ip}/on`,
     'timeout': TIMEOUT,
   }).then(() => {
     return 'success';
@@ -18,7 +18,7 @@ exports.turnOn = async function(ip) {
 exports.turnOff = async function(ip) {
   return request({
     'method': 'GET',
-    'uri': `http://${ip}/cm?cmnd=Power%20Off`,
+    'uri': `http://${ip}/off`,
     'timeout': TIMEOUT,
   }).then(() => {
     return 'success';
