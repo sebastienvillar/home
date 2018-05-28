@@ -8,6 +8,8 @@ const thermostatRoutes = require('./components/thermostat/routes');
 const thermostatManager = require('./components/thermostat/manager');
 const usersRoutes = require('./components/users/routes');
 const usersManager = require('./components/users/manager');
+const lightsRoutes = require('./components/lights/routes');
+const lightsManager = require('./components/lights/manager');
 const morgan = require('morgan');
 const requestId = require('express-request-id');
 
@@ -24,6 +26,7 @@ async function init() {
   rootManager.init();
   thermostatManager.init()
   usersManager.init();
+  lightsManager.init();
 
   // Create app
   const app = express();
@@ -33,7 +36,7 @@ async function init() {
   app.use(bodyParser.json());
 
   // Create routes
-  const mainRoutes = [rootRoutes, thermostatRoutes, usersRoutes];
+  const mainRoutes = [rootRoutes, thermostatRoutes, usersRoutes, lightsRoutes];
   mainRoutes.forEach(routes => {
     for (route in routes) {
       const methodHash = routes[route];

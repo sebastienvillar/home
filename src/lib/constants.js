@@ -11,6 +11,12 @@ exports.Keys = {
     awayMethod: 'user-%s-awayMethod',
     awayValue: 'user-%s-awayValue',
   },
+  lightIds: 'lightIds',
+  light: {
+    id: 'light-%s-id',
+    name: 'light-%s-name',
+    status: 'light-%s-status',
+  },
 };
 
 exports.ThermostatMode = {
@@ -26,9 +32,14 @@ exports.ThermostatStatus = {
 exports.UserAwayMethod = {
   auto: 'auto',
   manual: 'manual',
-}
+};
 
 exports.UserAwayValue = {
   away: 'away',
   home: 'home',
-}
+};
+
+exports.LightStatus = {
+  off: 'off',
+  on: 'on',
+};

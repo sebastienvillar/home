@@ -27,7 +27,7 @@ exports.getUser = async function(id) {
   };
 }
 
-exports.getUsers = async function() {
+exports.getAll = async function() {
   return {
     awayValue: await getAwayValue(),
   }

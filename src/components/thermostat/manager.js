@@ -29,7 +29,7 @@ exports.init = async function() {
   ], refreshSwitch);
 
   // Init thermostat values
-  await initializer();
+  await initialize();
     
   // Start temperature refresh
   setInterval(refreshTemperature, TEMPERATURE_FETCH_INTERVAL);
@@ -56,7 +56,7 @@ exports.get = async function() {
 
 // Private
 
-async function initializer() {
+async function initialize() {
   const keyToDefault = {};
   keyToDefault[Keys.thermostat.temperature] = 21;
   keyToDefault[Keys.thermostat.targetTemperature] = 21;
@@ -76,7 +76,7 @@ async function refreshTemperature() {
 async function refreshStatus() {
   const currentStatus = await db.getAsync(Keys.thermostat.status);
   const newStatus = await (async () => {
-    const awayValue = await usersManager.getUsers().awayValue;
+    const awayValue = (await usersManager.getAll()).awayValue;
     if (awayValue === UserAwayValue.home) {
       // Home
       const thermostat = await exports.get();
