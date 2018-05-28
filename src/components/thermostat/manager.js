@@ -81,9 +81,10 @@ async function refreshStatus() {
       // Home
       const thermostat = await exports.get();
       const temperature = thermostat.temperature;
+      const targetTemperature = thermostat.targetTemperature;
 
       if (thermostat.mode == ThermostatMode.warm) {
-        const offsetTargetTemperature = thermostat.targetTemperature - TARGET_TEMPERATURE_OFFSET;
+        const offsetTargetTemperature = targetTemperature- TARGET_TEMPERATURE_OFFSET;
         if (thermostat.status === ThermostatStatus.on) {
           // Keep going until we're at target temperature
           return temperature < targetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
@@ -94,7 +95,7 @@ async function refreshStatus() {
         }
       }
       else {
-        const offsetTargetTemperature = thermostat.targetTemperature + TARGET_TEMPERATURE_OFFSET;
+        const offsetTargetTemperature = targetTemperature+ TARGET_TEMPERATURE_OFFSET;
         if (thermostat.status === ThermostatStatus.on) {
           // Keep going until we're at target temperature
           return temperature > targetTemperature ? ThermostatStatus.on : ThermostatStatus.off;
