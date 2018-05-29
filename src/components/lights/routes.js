@@ -1,7 +1,7 @@
 const { Keys } = require('../../lib/constants');
 const rootManager = require('../root/manager');
 const manager = require('./manager');
-const dbHelper = require('../../lib/dbHelper');
+const db = require('../../lib/db');
 
 module.exports = {
   '/lights/:id': {
@@ -22,7 +22,7 @@ async function patch(req, res) {
     keyToValue[manager.createLightKey(Keys.light.status, id)] = req.body.status;
   }
 
-  await dbHelper.setAllAsync(keyToValue);
+  await db.setAllAsync(keyToValue);
   const result = await rootManager.get(req.query.id);
   return res.status(200).send(result);
 }

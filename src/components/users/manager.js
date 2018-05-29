@@ -1,6 +1,5 @@
 const { Keys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
 const db = require('../../lib/db');
-const dbHelper = require('../../lib/dbHelper');
 const util = require('util');
 
 // Public
@@ -18,7 +17,7 @@ exports.getUser = async function(id) {
     exports.createUserKey(Keys.user.awayValue, id),
   ];
 
-  const keyToValue = await dbHelper.getAllAsync(keys);
+  const keyToValue = await db.getAllAsync(keys);
 
   return {
     id: keyToValue[keys[0]],
@@ -44,17 +43,19 @@ exports.createUserIfNeeded = async function(id) {
     await db.saddAsync(Keys.userIds, id);
   }
 
-  return dbHelper.setAllIfNotExistAsync(keyToValue);
+  return db.setAllIfNotExistAsync(keyToValue);
 }
 
 exports.createUserKey = function(key, id) {
   return util.format(key, id);
 }
 
+// Private
+
 async function getAwayValue() {
   const ids = await db.smembersAsync(Keys.userIds);
   const awayValueKeys = ids.map(id => exports.createUserKey(Keys.user.awayValue, id));
-  const keyToValue = await dbHelper.getAllAsync(awayValueKeys);
+  const keyToValue = await db.getAllAsync(awayValueKeys);
   const areSomeUsersHome = Object.values(keyToValue).some(awayValue => awayValue === UserAwayValue.home);
   return areSomeUsersHome ? UserAwayValue.home : UserAwayValue.away;
 }

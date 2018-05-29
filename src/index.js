@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./lib/db');
-const dbListener = require('./lib/dbListener');
 const rootRoutes = require('./components/root/routes');
 const rootManager = require('./components/root/manager');
 const thermostatRoutes = require('./components/thermostat/routes');
@@ -16,11 +15,8 @@ const requestId = require('express-request-id');
 async function init() {
   // Init db and listener
   await new Promise((resolve, reject) => {
-    db.on('ready', () => {
-      resolve()
-    });
+    db.onReady(resolve);
   });
-  await dbListener.init();
   
   // Init managers
   rootManager.init();

@@ -2,7 +2,6 @@ const { Keys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
 const rootManager = require('../root/manager');
 const usersManager = require('./manager');
 const db = require('../../lib/db');
-const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/users/:id': {
@@ -33,7 +32,7 @@ async function patchUser(req, res) {
     keyToValue[usersManager.createUserKey(Keys.user.awayValue, id)] = req.body.awayValue;
   }
 
-  await dbHelper.setAllAsync(keyToValue);
+  await db.setAllAsync(keyToValue);
   const result = await rootManager.get(req.query.id);
   return res.status(200).send(result);
 }

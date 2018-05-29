@@ -6,6 +6,7 @@
     "deploy": "node ./deploy.js"
   },
   "dependencies": {
+    "array-flatten": "^2.1.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "express-request-id": "^1.4.0",

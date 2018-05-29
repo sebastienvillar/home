@@ -1,7 +1,5 @@
 const { Keys, LightStatus, UserAwayValue } = require('../../lib/constants');
 const db = require('../../lib/db');
-const dbHelper = require('../../lib/dbHelper');
-const dbListener = require('../../lib/dbListener');
 const lightApi = require('../../lib/apis/light');
 const config = require('../../../config');
 const util = require('util');
@@ -13,12 +11,12 @@ const LIGHTS_KEEP_ALIVE_INTERVAL = 5000 // 1h
 
 exports.init = async () => {
   // Listen to db changes
-  dbListener.on([
-    util.format(Keys.user.awayValue, '*'),
+  db.onKeysChange([
+    util.format(Keys.user.awayValue, '[^-]*'),
   ], refreshStatus);
 
-  dbListener.on([
-    util.format(Keys.light.status, '*'),
+  db.onKeysChange([
+    util.format(Keys.light.status, '[^-]*'),
   ], refreshLights);
 
   await initialize();
@@ -36,7 +34,7 @@ exports.getAll = async function (id) {
       exports.createLightKey(Keys.light.status, id),
     ];
 
-    const keyToValue = await dbHelper.getAllAsync(keys);
+    const keyToValue = await db.getAllAsync(keys);
     return {
       id: keyToValue[keys[0]],
       name: keyToValue[keys[1]],
@@ -71,7 +69,7 @@ async function initialize() {
     };
   }
 
-  return dbHelper.setAllIfNotExistAsync(keyToValue);
+  return db.setAllIfNotExistAsync(keyToValue);
 }
 
 async function refreshStatus() {
@@ -90,7 +88,7 @@ async function refreshStatus() {
   if (!currentStatuses.every(s => s === newStatus)) {
     // Only set when changed to avoid too many refresh of lights
     // Refresh manually instead of listening to db to avoid multiple requests
-    return dbHelper.setAllAsync(keyToValue);
+    return db.setAllAsync(keyToValue);
   }
 }
 

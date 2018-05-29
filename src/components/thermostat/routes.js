@@ -2,7 +2,6 @@ const { Keys } = require('../../lib/constants');
 const rootManager = require('../root/manager');
 const thermostatManager = require('./manager');
 const db = require('../../lib/db');
-const dbHelper = require('../../lib/dbHelper');
 
 module.exports = {
   '/thermostat': {
@@ -26,7 +25,7 @@ async function patch(req, res) {
     keyToValue[Keys.thermostat.mode] = req.body.mode;
   }
 
-  await dbHelper.setAllAsync(keyToValue);
+  await db.setAllAsync(keyToValue);
   const result = await rootManager.get(req.query.id);
   return res.status(200).send(result);
 }

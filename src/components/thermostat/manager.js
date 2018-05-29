@@ -1,8 +1,6 @@
 const { Keys, ThermostatMode, ThermostatStatus, UserAwayValue } = require('../../lib/constants');
 const config = require('../../../config');
 const db = require('../../lib/db');
-const dbListener = require('../../lib/dbListener');
-const dbHelper = require('../../lib/dbHelper');
 const switchDevice = require('../../lib/apis/switch');
 const usersManager = require('../users/manager');
 const thermometer = require('../../lib/apis/thermometer');
@@ -17,14 +15,14 @@ const SWITCH_KEEP_ALIVE_INTERVAL = 60 * 60 * 1000 // 1h
 
 exports.init = async function() {
   // Listen to db changes
-  dbListener.on([
+  db.onKeysChange([
     Keys.thermostat.temperature,
     Keys.thermostat.targetTemperature,
     Keys.thermostat.mode,
-    util.format(Keys.user.awayValue, '*'),
+    util.format(Keys.user.awayValue, '[^-]*'),
   ], refreshStatus);
 
-  dbListener.on([
+  db.onKeysChange([
     Keys.thermostat.status
   ], refreshSwitch);
 
@@ -44,7 +42,7 @@ exports.get = async function() {
     Keys.thermostat.status,
   ];
 
-  const keyToValue = await dbHelper.getAllAsync(keys);
+  const keyToValue = await db.getAllAsync(keys);
 
   return {
     temperature: parseFloat(keyToValue[keys[0]]),
@@ -62,7 +60,7 @@ async function initialize() {
   keyToDefault[Keys.thermostat.targetTemperature] = 21;
   keyToDefault[Keys.thermostat.mode] = ThermostatMode.warm;
   keyToDefault[Keys.thermostat.status] = ThermostatStatus.off;
-  dbHelper.setAllIfNotExistAsync(keyToDefault);
+  db.setAllIfNotExistAsync(keyToDefault);
 }
 
 async function refreshTemperature() {
