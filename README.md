@@ -87,6 +87,38 @@ module.exports = {
 };
 ```
 
+# Setup daemon
+
+## Create `/lib/systemd/system/home.service`
+
+```
+[Unit]
+Description=Home service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=pi
+ExecStart=/usr/local/bin/node /home/pi/home-server/deploy.js
+Environment=NODE_ENV=production
+WorkingDirectory=/home/pi/home-server
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Start service
+
+`systemctl start home`
+
+## Start service at boot
+
+`systemctl enable home`
+
+
 # Develop on Mac on the Pi disk
 
 ## Setup
