@@ -1,29 +1,30 @@
+const config = require('../../../config');
 const request = require('request-promise');
 
 const TIMEOUT = 20000; // 20 seconds
 
-exports.turnOn = async function(ip) {
-  return request({
-    method: 'GET',
-    uri: `http://${ip}/on`,
-    timeout: TIMEOUT,
-  }).then(() => {
-    return 'success';
-  }).catch((e) => {
-    console.log(`Could not turn on switch: ${e}`);
-    return 'failure';
-  });
+exports.getStatus = async function() {
+  try {
+    return await request({
+      method: 'GET',
+      uri: `http://${config.thermostatSwitchIP}/status`,
+      timeout: TIMEOUT,
+    });
+  } catch (e) {
+    console.error(`Could not get switch status - ${e}`);
+    throw e;
+  }
 }
 
-exports.turnOff = async function(ip) {
-  return request({
-    method: 'GET',
-    uri: `http://${ip}/off`,
-    timeout: TIMEOUT,
-  }).then(() => {
-    return 'success';
-  }).catch((e) => {
-    console.log(`Could not turn off switch: ${e}`);
-    return 'failure';
-  });
+exports.setStatus = async function(status) {
+  try {
+    await request({
+      method: 'GET',
+      uri: `http://${config.thermostatSwitchIP}/${status}`,
+      timeout: TIMEOUT,
+    });
+  } catch(e) {
+    console.error(`Could not set switch status to: ${status} - ${e}`);
+    throw e;
+  }
 }

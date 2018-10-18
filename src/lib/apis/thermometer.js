@@ -1,24 +1,30 @@
+const config = require('../../../config');
 const PythonShell = require('python-shell');
 const { promisify } = require('util');
 const runAsync = promisify(PythonShell.run).bind(PythonShell);
 
-exports.read = async function(pin, retries) {
+const RETRIES_MAX = 5;
+
+exports.get = async function() {
   const options = {
     mode: 'json',
     scriptPath: 'src/lib/devices/thermometer/',
-    args: [pin, retries]
+    args: [config.thermostatThermometerPin, RETRIES_MAX]
   };
 
-  return runAsync('main.py', options).then((result) => {
+  try {
+    const result = await runAsync('main.py', options);
     if (result === null) {
-      console.log(`Could not get temperature`)
-      return null;
-    }
-    if (!result || !result[0]) {
-      console.error(`Invalid data from thermometer: ${result}`)
-      return undefined;
+      throw new Error('Missing data');
     }
 
-    return result[0].temperature;
-  });
+    if (!result || !result[0]) {
+      throw new Error(`Invalid data: ${result}`);
+    }
+
+    return Math.round(result[0].temperature * 10) / 10;
+  } catch(e) {
+    console.error(`Could not get temperature - ${e}`);
+    throw new Error(e);
+  }
 }

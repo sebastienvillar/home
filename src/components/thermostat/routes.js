@@ -1,7 +1,7 @@
-const { Keys } = require('../../lib/constants');
-const rootManager = require('../root/manager');
-const thermostatManager = require('./manager');
 const db = require('../../lib/db');
+const rootModel = require('../root/model');
+const thermostatModel = require('./model');
+const thermostatManager = require('./manager');
 
 module.exports = {
   '/thermostat': {
@@ -10,22 +10,33 @@ module.exports = {
 }
 
 async function patch(req, res) {
+  // Get arguments
   if (!req.body || !req.query.id) {
     res.sendStatus(400);
     return;
   }
 
-  const keyToValue = {};
+  const userId = req.query.id;
+  
+  try {
+    // Set values
+    if (req.body.targetTemperature !== undefined) {
+      await thermostatModel.setStoredTargetTemperature(req.body.targetTemperature);   
+    }
 
-  if (req.body.targetTemperature !== undefined) {
-    keyToValue[Keys.thermostat.targetTemperature] = req.body.targetTemperature;
+    if (req.body.mode !== undefined) {
+      await thermostatModel.setStoredMode(req.body.mode);   
+    }
+
+    // Refresh thermostat
+    await thermostatManager.refresh();
+
+    // Send result
+    const result = await rootModel.get(userId);
+    return res.status(200).send(result);
+  } catch(e) {
+    return res.status(500).send({
+      message: e.message,
+    });
   }
-
-  if (req.body.mode !== undefined) {
-    keyToValue[Keys.thermostat.mode] = req.body.mode;
-  }
-
-  await db.setAllAsync(keyToValue);
-  const result = await rootManager.get(req.query.id);
-  return res.status(200).send(result);
 }

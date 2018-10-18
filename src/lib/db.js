@@ -1,140 +1,94 @@
-const redis = require('redis-promisify');
-const flatten = require('array-flatten');
-const db = redis.createClient();
+const fs = require('fs');
+const setValue = require('set-value');
+
+const DB_DIRECTORY = `${__dirname}/../../storage`;
+const DB_PATH = `${DB_DIRECTORY}/db.json`;
+const WRITE_TO_FILE_INTERVAL = 5000 // 10 seconds
+
+let shouldWriteToFile = false;
+let memory = null;
 
 // Public
 
-exports.onReady = (callback) => {
-  db.on('ready', callback);
+exports.init = async function() {
+  // Create directory
+  if (!fs.existsSync(DB_DIRECTORY)) {
+    fs.mkdirSync(DB_DIRECTORY);
+  }
+
+  // Load memory
+  memory = await readFromFile();
+
+  // Schedule write to file
+  setInterval(() => {
+    writeToFileIfNeeded();
+  }, WRITE_TO_FILE_INTERVAL);
 }
 
-// Get
-
-exports.smembersAsync = db.smembersAsync.bind(db);
-
-exports.getAsync = db.getAsync.bind(db);
-
-exports.getAllAsync = async function(keys) {
-  // Fetch values
-  let batchFetch = db.multi();
-  keys.forEach(key => batchFetch = batchFetch.get(key));
-  let values;
-  try {
-    values = await batchFetch.execAsync();
-  }
-  catch (e) {
-    console.error(`getAllAsync error: ${e}`);
-    return Promise.reject();
-  }
-
-  return keys.reduce((acc, key, index) => {
-    acc[key] = values[index];
-    return acc;
-  }, {});
+exports.get = function() {
+  return copy(memory);
 }
 
-// Set
-
-exports.saddAsync = async function(key, value) {
-  await db.saddAsync(key, value);
-  return triggerKeysChange([key]);
-}
-
-exports.setAsync = async function(key, value) {
-  await db.setAsync(key, value);
-  return triggerKeysChange([key]);
-}
-
-exports.setAllIfNotExistAsync = async function (keyToValues) {
-  // Fetch values
-  let batchFetch = db.multi();
-  const keys = Object.keys(keyToValues);
-  keys.forEach(key => batchFetch = batchFetch.get(key));
-  let values;
-
-  try {
-    values = await batchFetch.execAsync();
-  }
-  catch (e) {
-    console.error(`setAllIfNotExistAsync error: ${e}`);
-    return Promise.reject();
-  }
-
-  // Set if null
-  let hasValues = false;
-  let batchSet = db.multi();
-  values.forEach((value, index) => {
-    if (value === null) {
-      hasValues = true
-      batchSet = batchSet.set(keys[index], keyToValues[keys[index]]);
-    }
-  });
-
-  if (!hasValues) {
-    return Promise.resolve();
-  }
-
-  try {
-    await batchSet.execAsync();
-    return triggerKeysChange(keys);
-  }
-  catch (e) {
-    console.error(`setAllIfNotExistAsync error: ${e}`);
-    return Promise.reject();
+exports.set = function(pathToValues) {
+  for (const [path, value] of Object.entries(pathToValues)) {
+    memory = copy(memory);
+    setValue(memory, path, value);
+    shouldWriteToFile = true;
   }
 }
-
-exports.setAllAsync = async function (keyToValue) {
-  let batchSet = db.multi();
-  for (const key in keyToValue) {
-    batchSet = batchSet.set(key, keyToValue[key]);
-  }
-
-  try {
-    await batchSet.execAsync();
-    return triggerKeysChange(Object.keys(keyToValue));
-  }
-  catch (e) {
-    console.error(`setAllAsync error: ${e}`);
-    return Promise.reject();
-  }
-}
-
-exports.onKeysChange = function(keys, callback) {
-  keys.forEach((key) => {
-    const callbacks = patternToCallbacks[key] || [];
-    callbacks.push(callback);
-    patternToCallbacks[key] = callbacks;
-  });
-};
 
 // Private
 
-const patternToCallbacks = {};
-
-async function triggerKeysChange(keys) {
-  // Find callbacks
-  let callbacks = keys.map((key) => {
-    const patterns = Object.keys(patternToCallbacks)
-    return patterns.reduce((result, pattern) => {
-      if (new RegExp(pattern).test(key)) {
-        result.push(patternToCallbacks[pattern]);
-      }
-      return result;
-    }, [])
-  });
-
-  // Flatten array
-  callbacks = flatten(callbacks);
-
-  // Remove duplicates
-  callbacks = callbacks.reduce((result, callback) => {
-    if (result.indexOf(callback) === -1) {
-      result.push(callback);
+function readFromFile() {
+  return new Promise((resolve, reject) => {
+    // Read
+    if (!fs.existsSync(DB_PATH)) {
+      resolve({});
+      return;
     }
-    return result;
-  }, []);
 
-  const promises = callbacks.map(c => c());
-  return Promise.all(promises);
+    fs.readFile(DB_PATH, (e, data) => {
+      if (e) {
+        console.error(`Could not read from file: ${e}`);
+        reject(e);
+      }
+      else {
+        try {
+          // Parse
+          const json = JSON.parse(data)
+          resolve(json);
+        } catch (e) {
+          console.error(`Couldn't parse JSON from file: ${e}`);
+          reject(e);
+        }
+      }
+    });
+  });
+}
+
+function writeToFileIfNeeded() {
+  if (!shouldWriteToFile) {
+    return;
+  }
+
+  try {
+    // Serialize
+    const jsonString = JSON.stringify(memory, null, 4);
+
+    // Write to file
+    fs.writeFile(DB_PATH, jsonString, (e) => {
+      if (e) {
+        console.error(`Couldn't write to file: ${e}`);
+      }
+      else {
+        shouldWriteToFile = false;
+      }
+    });
+  } catch(e) {
+    console.error(`Couldn't write to file: ${e}`);
+  }
+}
+
+function copy(json) {
+  return JSON.parse(JSON.stringify(json));
 }

@@ -1,7 +1,5 @@
-const { Keys } = require('../../lib/constants');
-const rootManager = require('../root/manager');
-const manager = require('./manager');
-const db = require('../../lib/db');
+const rootModel = require('../root/model');
+const lightsModel = require('./model');
 
 module.exports = {
   '/lights/:id': {
@@ -10,19 +8,25 @@ module.exports = {
 }
 
 async function patch(req, res) {
-  if (!req.body || !req.query.id) {
+  // Get arguments
+  if (!req.query.id || !req.body || (req.body.status !== 'on' && req.body.status !== 'off')) {
     res.sendStatus(400);
     return;
   }
 
-  const id = req.params.id;
-  const keyToValue = {};
+  const userId = req.query.id
+  const lightId = req.params.id;
 
-  if (req.body.status !== undefined) {
-    keyToValue[manager.createLightKey(Keys.light.status, id)] = req.body.status;
+  try {
+    // Set status
+    await lightsModel.setRemoteStatus(lightId, req.body.status)
+
+    // Send result
+    const result = await rootModel.get(userId);
+    return res.status(200).send(result);
+  } catch (e) {
+    return res.status(500).send({
+      message: e.message,
+    });
   }
-
-  await db.setAllAsync(keyToValue);
-  const result = await rootManager.get(req.query.id);
-  return res.status(200).send(result);
 }

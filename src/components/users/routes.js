@@ -1,7 +1,8 @@
-const { Keys, UserAwayMethod, UserAwayValue } = require('../../lib/constants');
-const rootManager = require('../root/manager');
-const usersManager = require('./manager');
 const db = require('../../lib/db');
+const rootModel = require('../root/model');
+const usersModel = require('./model');
+const lightsManager = require('../lights/manager');
+const thermostatManager = require('../thermostat/manager');
 
 module.exports = {
   '/users/:id': {
@@ -10,29 +11,34 @@ module.exports = {
 }
 
 async function patchUser(req, res) {
-  if (!req.body || !req.query.id) {
-    res.send(400);
-    return;
-  }
-
-  const id = req.params.id;
-  const ids = await db.smembersAsync(Keys.userIds);
-  if (!ids.includes(id)) {
+  // Get arguments
+  if (!req.body || !req.params.id) {
     res.sendStatus(400);
     return;
   }
 
-  const keyToValue = {};
+  const userId = req.params.id;
 
-  if (req.body.awayMethod !== undefined) {
-    keyToValue[usersManager.createUserKey(Keys.user.awayMethod, id)] = req.body.awayMethod;
+  try {
+    // Set values
+    if (req.body.awayMethod !== undefined) {
+      await usersModel.setStoredAwayMethod(userId, req.body.awayMethod)
+    }
+
+    if (req.body.awayValue !== undefined) {
+      await usersModel.setStoredAwayValue(userId, req.body.awayValue);
+
+      // Refresh managers
+      await lightsManager.refresh();
+      await thermostatManager.refresh();
+    }
+
+    // Send result
+    const result = await rootModel.get(userId);
+    return res.status(200).send(result);
+  } catch(e) {
+    return res.status(500).send({
+      message: e.message,
+    });
   }
-
-  if (req.body.awayValue !== undefined) {
-    keyToValue[usersManager.createUserKey(Keys.user.awayValue, id)] = req.body.awayValue;
-  }
-
-  await db.setAllAsync(keyToValue);
-  const result = await rootManager.get(req.query.id);
-  return res.status(200).send(result);
 }

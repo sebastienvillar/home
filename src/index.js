@@ -1,28 +1,25 @@
+const db = require('./lib/db');
+const models = require('./components/models');
+const managers = require('./components/managers');
+const routes = require('./components/routes');
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('./lib/db');
-const rootRoutes = require('./components/root/routes');
-const rootManager = require('./components/root/manager');
-const thermostatRoutes = require('./components/thermostat/routes');
-const thermostatManager = require('./components/thermostat/manager');
-const usersRoutes = require('./components/users/routes');
-const usersManager = require('./components/users/manager');
-const lightsRoutes = require('./components/lights/routes');
-const lightsManager = require('./components/lights/manager');
 const morgan = require('morgan');
 const requestId = require('express-request-id');
 
 async function init() {
-  // Init db and listener
-  await new Promise((resolve, reject) => {
-    db.onReady(resolve);
-  });
-  
+  // Init db
+  await db.init();
+
+  // Init models
+  for (const model of Object.values(models)) {
+    await model.init();
+  }
+
   // Init managers
-  rootManager.init();
-  thermostatManager.init()
-  usersManager.init();
-  lightsManager.init();
+  for (const manager of Object.values(managers)) {
+    await manager.init();
+  }
 
   // Create app
   const app = express();
@@ -32,16 +29,13 @@ async function init() {
   app.use(bodyParser.json());
 
   // Create routes
-  const mainRoutes = [rootRoutes, thermostatRoutes, usersRoutes, lightsRoutes];
-  mainRoutes.forEach(routes => {
-    for (route in routes) {
-      const methodHash = routes[route];
-      for (methodKey in methodHash) {
-        const methodFunction = methodHash[methodKey];
-        app[methodKey](route, methodFunction);
+  for (const route of Object.values(routes)) {
+    for (const [path, methods] of Object.entries(route)) {
+      for (const [method, imp] of Object.entries(methods)) {
+        app[method](path, imp);
       }
     }
-  });
+  }
 
   // Start
   const port = process.env.PORT || 8080;
