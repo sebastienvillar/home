@@ -24,7 +24,12 @@ async function init() {
 
   // Create app
   const app = express();
-  app.use(morgan('tiny'));
+  const morganStream = {
+    write: function (message, encoding) {
+      logger.info(message);
+    }
+  };
+  app.use(morgan('tiny', { 'stream': morganStream }));
   app.use(requestId());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
