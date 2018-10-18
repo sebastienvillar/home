@@ -1,3 +1,4 @@
+const logger = require('./lib/logger');
 const db = require('./lib/db');
 const models = require('./components/models');
 const managers = require('./components/managers');
@@ -40,7 +41,7 @@ async function init() {
   // Start
   const port = process.env.PORT || 8080;
   app.listen(port);
-  console.log(`App listening on port ${port}`);
+  logger.info(`App listening on port ${port}`);
 }
 
 init();

@@ -1,3 +1,4 @@
+const logger = require('../logger');
 const config = require('../../../config');
 const request = require('request-promise');
 
@@ -11,7 +12,7 @@ exports.getStatus = async function() {
       timeout: TIMEOUT,
     });
   } catch (e) {
-    console.error(`Could not get switch status - ${e}`);
+    logger.error(`Could not get switch status - ${e}`);
     throw e;
   }
 }
@@ -24,7 +25,7 @@ exports.setStatus = async function(status) {
       timeout: TIMEOUT,
     });
   } catch(e) {
-    console.error(`Could not set switch status to: ${status} - ${e}`);
+    logger.error(`Could not set switch status to: ${status} - ${e}`);
     throw e;
   }
 }

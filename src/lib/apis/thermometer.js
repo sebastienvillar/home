@@ -1,3 +1,4 @@
+const logger = require('../logger');
 const config = require('../../../config');
 const PythonShell = require('python-shell');
 const { promisify } = require('util');
@@ -24,7 +25,7 @@ exports.get = async function() {
 
     return Math.round(result[0].temperature * 10) / 10;
   } catch(e) {
-    console.error(`Could not get temperature - ${e}`);
+    logger.error(`Could not get temperature - ${e}`);
     throw new Error(e);
   }
 }

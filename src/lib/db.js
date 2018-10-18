@@ -1,3 +1,4 @@
+const logger = require('./logger');
 const fs = require('fs');
 const setValue = require('set-value');
 
@@ -49,7 +50,7 @@ function readFromFile() {
 
     fs.readFile(DB_PATH, (e, data) => {
       if (e) {
-        console.error(`Could not read from file: ${e}`);
+        logger.error(`Could not read from file: ${e}`);
         reject(e);
       }
       else {
@@ -58,7 +59,7 @@ function readFromFile() {
           const json = JSON.parse(data)
           resolve(json);
         } catch (e) {
-          console.error(`Couldn't parse JSON from file: ${e}`);
+          logger.error(`Couldn't parse JSON from file: ${e}`);
           reject(e);
         }
       }
@@ -78,14 +79,14 @@ function writeToFileIfNeeded() {
     // Write to file
     fs.writeFile(DB_PATH, jsonString, (e) => {
       if (e) {
-        console.error(`Couldn't write to file: ${e}`);
+        logger.error(`Couldn't write to file: ${e}`);
       }
       else {
         shouldWriteToFile = false;
       }
     });
   } catch(e) {
-    console.error(`Couldn't write to file: ${e}`);
+    logger.error(`Couldn't write to file: ${e}`);
   }
 }
 
