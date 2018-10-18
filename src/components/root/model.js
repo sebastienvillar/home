@@ -19,12 +19,19 @@ exports.init = async function () {
 // Mix
 
 exports.get = async function (id) {
+  const [lights, thermostat, user, awayValue] = await Promise.all([
+    lightsModel.getAll(),
+    thermostatModel.get(),
+    usersModel.get(id),
+    usersModel.getStoredAwayValueForAll(),
+  ]);
+
   return {
-    lights: await lightsModel.getAll(),
-    thermostat: await thermostatModel.get(),
-    user: await usersModel.get(id),
+    lights: lights,
+    thermostat: thermostat,
+    user: user,
     users: {
-      awayValue: await usersModel.getStoredAwayValueForAll(),
+      awayValue: awayValue,
     },
   };
 };

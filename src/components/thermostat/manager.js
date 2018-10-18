@@ -17,6 +17,9 @@ exports.init = async function() {
 }
 
 exports.refresh = async function () {
+  // Refresh temperature
+  await thermostatModel.getRemoteTemperature();
+  
   // Get values
   const [thermostat, awayValue] = await Promise.all([
     thermostatModel.get(),

@@ -29,8 +29,8 @@ exports.init = async function () {
 exports.get = async function() {
   const [thermostat, temperature, status] = await Promise.all([
     exports.getStored(),
-    exports.getRemoteTemperature(),
-    exports.getRemoteStatus(),
+    getLocalTemperature(),
+    getLocalStatus(),
   ]);
 
   thermostat.status = status;
@@ -41,15 +41,20 @@ exports.get = async function() {
 // Remote
 
 exports.getRemoteTemperature = async function() {
-  return thermometerApi.get();
+  const newTemperature = await thermometerApi.get();
+  temperature = newTemperature;
+  return temperature;
 }
 
 exports.getRemoteStatus = async function() {
-  return switchApi.getStatus();
+  const newStatus = await switchApi.getStatus();
+  status = newStatus
+  return status;
 }
 
-exports.setRemoteStatus = async function(status) {
-  return switchApi.setStatus(status);
+exports.setRemoteStatus = async function(newStatus) {
+  await switchApi.setStatus(newStatus);
+  status = newStatus;
 }
 
 // Stored
@@ -70,3 +75,29 @@ exports.setStoredMode = async function(mode) {
   });
 }
 
+// Private
+
+let temperature = null;
+let status = null;
+
+// Local
+
+async function getLocalTemperature() {
+  // Temperature is slow to fetch so keep a local version
+  if (temperature === null) {
+    return exports.getRemoteTemperature();
+  }
+  else {
+    return temperature;
+  }
+}
+
+async function getLocalStatus() {
+  // Status is slow to fetch so keep a local version
+  if (status === null) {
+    return exports.getRemoteStatus();
+  }
+  else {
+    return status;
+  }
+}
