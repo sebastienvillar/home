@@ -1,6 +1,0 @@
-{
-    "thermostat": {
-        "targetTemperature": 21,
-        "mode": "warm"
-    }
-}

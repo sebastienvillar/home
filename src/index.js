@@ -1,3 +1,4 @@
+const logger = require('./lib/logger');
 const db = require('./lib/db');
 const models = require('./components/models');
 const managers = require('./components/managers');
@@ -23,7 +24,12 @@ async function init() {
 
   // Create app
   const app = express();
-  app.use(morgan('tiny'));
+  const morganStream = {
+    write: function (message, encoding) {
+      logger.info(message);
+    }
+  };
+  app.use(morgan('tiny', { 'stream': morganStream }));
   app.use(requestId());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
@@ -40,7 +46,7 @@ async function init() {
   // Start
   const port = process.env.PORT || 8080;
   app.listen(port);
-  console.log(`App listening on port ${port}`);
+  logger.info(`App listening on port ${port}`);
 }
 
 init();

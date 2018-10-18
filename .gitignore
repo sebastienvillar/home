@@ -4,3 +4,4 @@ node_modules/
 *.rdb
 config.js
 *.DS_Store
+storage/

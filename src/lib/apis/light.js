@@ -1,5 +1,6 @@
+const logger = require('../logger');
 const config = require('../../../config');
-const request = require('request-promise');
+const request = require('../request');
 
 const TIMEOUT = 20000; // 20 seconds
 
@@ -12,7 +13,7 @@ exports.getAll = async function() {
       json: true,
     });
   } catch(e) {
-    console.error(`Could not get lights: ${e}`);
+    logger.error(`Could not get lights: ${e}`);
     throw e;
   }
 }
@@ -27,7 +28,7 @@ exports.setStatus = async function(id, status) {
       json: true,
     });
   } catch (e) {
-    console.error(`Could not set light status with ID: ${id}, to: ${status} - ${e}`);
+    logger.error(`Could not set light status with ID: ${id}, to: ${status} - ${e}`);
     throw e;
   }
 }

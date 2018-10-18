@@ -1,3 +1,4 @@
+const logger = require('../../lib/logger');
 const thermostatModel = require('./model');
 const usersModel = require('../users/model');
 
@@ -53,11 +54,8 @@ exports.refresh = async function () {
   })();
 
   // Update status
-  if (newStatus === thermostat.status) {
-    console.log(`Do not update thermostat status: "${newStatus}" for temperature: ${thermostat.temperature}, targetTemperature: ${thermostat.targetTemperature}, mode: "${thermostat.mode}", awayValue: "${awayValue}"`);
-  }
-  else {
-    console.log(`Update thermostat status: ${newStatus} for temperature: ${thermostat.temperature}, targetTemperature: ${thermostat.targetTemperature}, mode: "${thermostat.mode}", awayValue: "${awayValue}", oldStatus: ${thermostat.status}`);
+  if (newStatus !== thermostat.status) {
+    logger.info(`Update thermostat status: ${newStatus} for temperature: ${thermostat.temperature}, targetTemperature: ${thermostat.targetTemperature}, mode: "${thermostat.mode}", awayValue: "${awayValue}", oldStatus: ${thermostat.status}`);
     await thermostatModel.setRemoteStatus(newStatus);
   }
 }
