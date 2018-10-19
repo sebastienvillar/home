@@ -1,4 +1,5 @@
 const config = require('../../config');
+const Constants = require('./constants');
 const winston = require('winston');
 const Transport = require('winston-transport');
 const fs = require('fs');
@@ -6,8 +7,7 @@ const nodemailer = require('nodemailer');
 
 // Private
 
-const LOG_PATH = 'combined.log';
-const LOG_MAX_SIZE = 1024 * 1024 // 1MB
+const LOG_MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
 const format = winston.format.combine(
   winston.format.timestamp(),
@@ -38,7 +38,7 @@ class EmailTransport extends Transport {
       subject: "Home error",
       attachments: [
         {
-          path: LOG_PATH,
+          path: Constants.LOG_PATH,
         },
       ]
     }
@@ -57,11 +57,11 @@ module.exports = (() => {
   const logger = winston.createLogger({
     format: format,
     transports: [
-      new winston.transports.File({ filename: LOG_PATH, maxsize: LOG_MAX_SIZE, maxFiles: 2, tailable: true }),
+      new winston.transports.File({ filename: Constants.LOG_PATH, maxsize: LOG_MAX_SIZE, maxFiles: 2, tailable: true }),
       new EmailTransport({ level: 'error' }), 
     ],
     exceptionHandlers: [
-      new winston.transports.File({ filename: LOG_PATH, maxsize: LOG_MAX_SIZE, maxFiles: 2, tailable: true }),
+      new winston.transports.File({ filename: Constants.LOG_PATH, maxsize: LOG_MAX_SIZE, maxFiles: 2, tailable: true }),
       new EmailTransport(), 
     ]
   });

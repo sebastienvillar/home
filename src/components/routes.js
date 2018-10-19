@@ -1,4 +1,5 @@
-exports.rootRoute = require('./root/routes');
-exports.lightsRoute = require('./lights/routes');
-exports.thermostatRoute = require('./thermostat/routes');
-exports.usersRoute = require('./users/routes');
+exports.rootRoutes = require('./root/routes');
+exports.lightsRoutes = require('./lights/routes');
+exports.thermostatRoutes = require('./thermostat/routes');
+exports.usersRoutes = require('./users/routes');
+exports.logsRoutes = require('./logs/routes');
