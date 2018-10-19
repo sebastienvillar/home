@@ -26,6 +26,8 @@ async function init() {
   const app = express();
   const morganStream = {
     write: function (message, encoding) {
+      // Remove line break
+      message = message.slice(0, -1);
       logger.info(message);
     }
   };
