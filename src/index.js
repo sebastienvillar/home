@@ -26,19 +26,27 @@ async function init() {
 
   // Create app
   const app = express();
+  
+  morgan.token('body', (req, res) => req.body);
+  const morganFormat = function(tokens, req, res) {
+    return `Request: ${JSON.stringify({
+      method: tokens.method(req, res),
+      url: tokens.url(req, res),
+      body: tokens.body(req, res),
+      status: tokens.status(req, res),
+      responseTime: `${tokens['response-time'](req, res)} ms`,
+    }, null, 4)}`;
+  };
+
   const morganStream = {
-    write: function (message, encoding) {
-      // Remove line break
-      message = message.slice(0, -1);
-      logger.info(message);
-    }
+    write: message => logger.info(message),
   };
 
   app.use(basicAuth({ users: { 'admin': config.password } }));
-  app.use(morgan('tiny', { 'stream': morganStream }));
-  app.use(requestId());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+  app.use(requestId());
+  app.use(morgan(morganFormat));
 
   // Create routes
   for (const route of Object.values(routes)) {
