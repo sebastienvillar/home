@@ -9,6 +9,7 @@
     "array-flatten": "^2.1.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
+    "express-basic-auth": "^1.1.5",
     "express-request-id": "^1.4.0",
     "forever-monitor": "^1.7.1",
     "morgan": "^1.9.0",

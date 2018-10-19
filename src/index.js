@@ -1,9 +1,11 @@
 const logger = require('./lib/logger');
 const db = require('./lib/db');
+const config = require('../config');
 const models = require('./components/models');
 const managers = require('./components/managers');
 const routes = require('./components/routes');
 const express = require('express');
+const basicAuth = require('express-basic-auth');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const requestId = require('express-request-id');
@@ -31,6 +33,8 @@ async function init() {
       logger.info(message);
     }
   };
+
+  app.use(basicAuth({ users: { 'admin': config.password } }));
   app.use(morgan('tiny', { 'stream': morganStream }));
   app.use(requestId());
   app.use(bodyParser.urlencoded({ extended: true }));

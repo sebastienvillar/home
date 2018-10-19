@@ -68,6 +68,7 @@ module.exports = {
   contactPassword: <PASSWORD>,
   hueIP: <IP>,
   hueUsername: <USERNAME>,
+  password: <PASSWORD>,
 };
 ```
 
