@@ -4,7 +4,7 @@ const PythonShell = require('python-shell');
 const { promisify } = require('util');
 const runAsync = promisify(PythonShell.run).bind(PythonShell);
 
-const RETRIES_MAX = 5;
+// Public
 
 exports.get = async function() {
   const options = {
@@ -29,3 +29,7 @@ exports.get = async function() {
     throw new Error(e);
   }
 }
+
+// Private
+
+const RETRIES_MAX = 5;

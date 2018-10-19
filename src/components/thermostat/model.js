@@ -2,8 +2,6 @@ const db = require('../../lib/db');
 const switchApi = require('../../lib/apis/switch');
 const thermometerApi = require('../../lib/apis/thermometer');
 
-const TEMPERATURE_RETRIES_MAX = 5;
-
 // Public
 
 // Model
@@ -76,6 +74,8 @@ exports.setStoredMode = async function(mode) {
 }
 
 // Private
+
+const TEMPERATURE_RETRIES_MAX = 5;
 
 let temperature = null;
 let status = null;

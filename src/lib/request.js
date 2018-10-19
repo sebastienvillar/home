@@ -2,7 +2,7 @@ const logger = require('./logger');
 const requestPromise = require('request-promise');
 const url = require('url');
 
-const THRESHOLD = 250;
+// Public
 
 module.exports = async function() {
   const timestamp1 = Date.now();
@@ -17,3 +17,7 @@ module.exports = async function() {
     return result
   });
 }
+
+// Private
+
+const THRESHOLD = 250;

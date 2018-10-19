@@ -2,13 +2,6 @@ const logger = require('./logger');
 const fs = require('fs');
 const setValue = require('set-value');
 
-const DB_DIRECTORY = `${__dirname}/../../storage`;
-const DB_PATH = `${DB_DIRECTORY}/db.json`;
-const WRITE_TO_FILE_INTERVAL = 5000 // 10 seconds
-
-let shouldWriteToFile = false;
-let memory = null;
-
 // Public
 
 exports.init = async function() {
@@ -39,6 +32,13 @@ exports.set = function(pathToValues) {
 }
 
 // Private
+
+const DB_DIRECTORY = `${__dirname}/../../storage`;
+const DB_PATH = `${DB_DIRECTORY}/db.json`;
+const WRITE_TO_FILE_INTERVAL = 5000 // 10 seconds
+
+let shouldWriteToFile = false;
+let memory = null;
 
 function readFromFile() {
   return new Promise((resolve, reject) => {

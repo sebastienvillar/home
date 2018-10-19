@@ -4,10 +4,10 @@ const Transport = require('winston-transport');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
 
-const LOG_PATH = 'combined.log';
-const LOG_MAX_SIZE = 1024*1024 // 1MB
-
 // Private
+
+const LOG_PATH = 'combined.log';
+const LOG_MAX_SIZE = 1024 * 1024 // 1MB
 
 const format = winston.format.combine(
   winston.format.timestamp(),

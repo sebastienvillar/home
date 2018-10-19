@@ -2,7 +2,7 @@ const logger = require('../logger');
 const config = require('../../../config');
 const request = require('../request');
 
-const TIMEOUT = 20000; // 20 seconds
+// Public
 
 exports.getAll = async function() {
   try {
@@ -32,3 +32,7 @@ exports.setStatus = async function(id, status) {
     throw e;
   }
 }
+
+// Private
+
+const TIMEOUT = 20000; // 20 seconds
