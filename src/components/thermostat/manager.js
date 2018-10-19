@@ -8,6 +8,10 @@ exports.init = async function() {
   // Start status refreshes
   setInterval(async () => {
     try {
+      // Refresh temperature
+      await thermostatModel.getRemoteTemperature();
+
+      // Refresh
       await exports.refresh();
     } catch(e) {}
   }, REFRESH_STATUS_INTERVAL);
@@ -47,9 +51,6 @@ let lastTargetTemperature = null;
 let lastRefreshTimestamp = Number.MIN_VALUE;
 
 async function getNewStatus() {
-  // Refresh temperature
-  await thermostatModel.getRemoteTemperature();
-
   // Get values
   const [thermostat, awayValue] = await Promise.all([
     thermostatModel.get(),
