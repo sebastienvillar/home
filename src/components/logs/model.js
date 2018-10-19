@@ -15,5 +15,7 @@ exports.init = async function () {
 exports.get = async function () {
   const file1 = fs.existsSync(Constants.LOG_PATH) ? fs.readFileSync(Constants.LOG_PATH, 'utf8') : '';
   const file2 = fs.existsSync(Constants.LOG_PATH_ROTATED) ? fs.readFileSync(Constants.LOG_PATH_ROTATED, 'utf8') : '';
-  return file2 + file1;
+  return {
+    text: file2 + file1,
+  };
 }
