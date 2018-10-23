@@ -18,7 +18,7 @@ exports.getAll = async function() {
   }
 }
 
-exports.setAttributes = async function(id, attributes) {
+exports.setAttributes = async function(ids, attributes) {
   const body = {};
   if (attributes.status) {
     body.on = attributes.status === 'on';
@@ -28,13 +28,17 @@ exports.setAttributes = async function(id, attributes) {
   }
 
   try {
-    await request({
-      method: 'PUT',
-      uri: `http://${config.hueIP}/api/${config.hueUsername}/groups/${id}/action`,
-      timeout: TIMEOUT,
-      body: body,
-      json: true,
+    const promises = ids.map((id) => {
+      return request({
+        method: 'PUT',
+        uri: `http://${config.hueIP}/api/${config.hueUsername}/lights/${id}/state`,
+        timeout: TIMEOUT,
+        body: body,
+        json: true,
+      });
     });
+
+    return Promise.all(promises);
   } catch (e) {
     logger.error(`Could not set light attributes with ID: ${id}, to: ${attributes} - ${e}`);
     throw e;

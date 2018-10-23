@@ -18,26 +18,44 @@ exports.init = async function() {
 
 exports.getAll = async function() {
   const hueLights = await lightApi.getAll();
-  return Object.keys(hueLights).map((id) => {
+  groupIdToLightIds = groupIdToLightIds || {};
+  const groups = [];
+
+  Object.keys(hueLights).forEach(id => {
     const hueLight = hueLights[id];
-    
-    return {
+    groupIdToLightIds[id] = hueLight.lights;
+    groups.push({
       id: id,
       name: hueLight.name,
       status: hueLight.state.all_on ? 'on' : 'off',
       brightness: hueLight.action.bri,
-    };
+    });
   });
+
+  return groups;
 }
 
 // Remote
 
 exports.setRemoteAttributesForAll = async function(attributes) {
-  const hueLights = await lightApi.getAll();
-  const promises = Object.keys(hueLights).map(id => exports.setRemoteAttributes(id, attributes));
+  const lights = await exports.getAll();
+  const promises = Object.keys(lights).map(id => exports.setRemoteAttributes(id, attributes));
   return Promise.all(promises);
 }
 
 exports.setRemoteAttributes = async function(id, attributes) {
-  return lightApi.setAttributes(id, attributes);
+  if (!groupIdToLightIds || Object.keys(groupIdToLightIds).length === 0) {
+    await exports.getAll();
+  }
+
+  const lightIds = groupIdToLightIds[id];
+  if (!lightIds) {
+    return;
+  }
+
+  return lightApi.setAttributes(lightIds, attributes);
 }
+
+// Private
+
+groupIdToLightIds = null;
