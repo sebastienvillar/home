@@ -30,7 +30,7 @@ async function patchUser(req, res) {
 
       // Refresh managers
       await lightsManager.refresh();
-      await thermostatManager.refresh();
+      await thermostatManager.refresh(true);
     }
 
     // Send result

@@ -12,12 +12,12 @@ exports.init = async function() {
       await thermostatModel.getRemoteTemperature();
 
       // Refresh
-      await exports.refresh();
+      await exports.refresh(false);
     } catch(e) {}
   }, REFRESH_STATUS_INTERVAL);
 }
 
-exports.refresh = async function () {
+exports.refresh = async function(ignoreInterval) {
   const newStatus = await getNewStatus();
   const thermostat = await thermostatModel.get();
 
@@ -27,10 +27,7 @@ exports.refresh = async function () {
     return
   }
 
-  const lastStatusChangeInterval = Date.now() - lastRefreshTimestamp;
-  const targetTemperatureChanged = thermostat.targetTemperature !== lastTargetTemperature;
-  lastTargetTemperature = thermostat.targetTemperature;
-  if (lastStatusChangeInterval < REFRESH_STATUS_CHANGE_INTERVAL && !targetTemperatureChanged) {
+  if (!ignoreInterval && (Date.now() - lastRefreshTimestamp) < REFRESH_STATUS_CHANGE_INTERVAL) {
     // Target temperature didn't change and it has not been long enough since last status change
     logger.info(`Do not update status yet to ${newStatus}. Last interval: ${lastStatusChangeInterval}`);
     return;
@@ -48,7 +45,6 @@ const TARGET_TEMPERATURE_OFFSET = 0.2;
 const REFRESH_STATUS_INTERVAL = 45 * 1000; // 45s
 const REFRESH_STATUS_CHANGE_INTERVAL = 5 * 60 * 1000 // 5 minutes
 
-let lastTargetTemperature = null;
 let lastRefreshTimestamp = Number.MIN_VALUE;
 
 async function getNewStatus() {

@@ -29,7 +29,7 @@ async function patch(req, res) {
     }
 
     // Refresh thermostat
-    await thermostatManager.refresh();
+    await thermostatManager.refresh(true);
 
     // Send result
     const result = await rootModel.get(userId);

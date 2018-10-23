@@ -46,7 +46,7 @@ exports.getRemoteTemperature = async function() {
 
 exports.getRemoteStatus = async function() {
   const newStatus = await switchApi.getStatus();
-  status = newStatus
+  status = newStatus;
   return status;
 }
 
