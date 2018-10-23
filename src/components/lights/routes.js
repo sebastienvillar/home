@@ -9,7 +9,7 @@ module.exports = {
 
 async function patch(req, res) {
   // Get arguments
-  if (!req.query.id || !req.body || (req.body.status !== 'on' && req.body.status !== 'off')) {
+  if (!req.query.id || !req.body) {
     res.sendStatus(400);
     return;
   }
@@ -18,8 +18,8 @@ async function patch(req, res) {
   const lightId = req.params.id;
 
   try {
-    // Set status
-    await lightsModel.setRemoteStatus(lightId, req.body.status)
+    // Set attributes
+    await lightsModel.setRemoteAttributes(lightId, req.body)
 
     // Send result
     const result = await rootModel.get(userId);

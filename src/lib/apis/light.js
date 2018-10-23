@@ -18,17 +18,25 @@ exports.getAll = async function() {
   }
 }
 
-exports.setStatus = async function(id, status) {
+exports.setAttributes = async function(id, attributes) {
+  const body = {};
+  if (attributes.status) {
+    body.on = attributes.status === 'on';
+  }
+  if (attributes.brightness) {
+    body.bri = attributes.brightness;
+  }
+
   try {
     await request({
       method: 'PUT',
       uri: `http://${config.hueIP}/api/${config.hueUsername}/groups/${id}/action`,
       timeout: TIMEOUT,
-      body: { on: status === 'on' },
+      body: body,
       json: true,
     });
   } catch (e) {
-    logger.error(`Could not set light status with ID: ${id}, to: ${status} - ${e}`);
+    logger.error(`Could not set light attributes with ID: ${id}, to: ${attributes} - ${e}`);
     throw e;
   }
 }

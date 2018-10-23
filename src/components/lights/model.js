@@ -6,7 +6,8 @@ const lightApi = require('../../lib/apis/light');
 // {
 //   id: string <remote>,
 //   name: string <remote>,
-//   status: string (on/off) <remote>,
+//   status: string (on/off) <remote>, - attribute
+//   brightness: number (1-254) <remote> - attribute
 // }
 
 exports.init = async function() {
@@ -18,22 +19,25 @@ exports.init = async function() {
 exports.getAll = async function() {
   const hueLights = await lightApi.getAll();
   return Object.keys(hueLights).map((id) => {
+    const hueLight = hueLights[id];
+    
     return {
       id: id,
-      name: hueLights[id].name,
-      status: hueLights[id].state.all_on ? 'on' : 'off',
+      name: hueLight.name,
+      status: hueLight.state.all_on ? 'on' : 'off',
+      brightness: hueLight.action.bri,
     };
   });
 }
 
 // Remote
 
-exports.setRemoteStatusForAll = async function(status) {
+exports.setRemoteAttributesForAll = async function(attributes) {
   const hueLights = await lightApi.getAll();
-  const promises = Object.keys(hueLights).map(id => exports.setRemoteStatus(id, status));
+  const promises = Object.keys(hueLights).map(id => exports.setRemoteAttributes(id, attributes));
   return Promise.all(promises);
 }
 
-exports.setRemoteStatus = async function(id, status) {
-  return lightApi.setStatus(id, status);
+exports.setRemoteAttributes = async function(id, attributes) {
+  return lightApi.setAttributes(id, attributes);
 }
