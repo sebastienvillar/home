@@ -6,12 +6,16 @@ const request = require('../request');
 
 exports.getAll = async function() {
   try {
-    return await request({
+    const result = await request({
       method: 'GET',
       uri: `http://${config.hueIP}/api/${config.hueUsername}/groups`,
       timeout: TIMEOUT,
       json: true,
+      resolveWithFullResponse: true,
     });
+
+    logger.info(`Get all success: ${result.statusCode}, body: ${JSON.stringify(result.body)}`);
+    return result.body
   } catch(e) {
     logger.error(`Could not get lights: ${e}`);
     throw e;
@@ -35,10 +39,12 @@ exports.setAttributes = async function(ids, attributes) {
         timeout: TIMEOUT,
         body: body,
         json: true,
+        resolveWithFullResponse: true,
       });
     });
 
-    return Promise.all(promises);
+    await Promise.all(promises);
+    logger.info(`Set attributes success: ${ids}, attributes: ${attributes}`);
   } catch (e) {
     logger.error(`Could not set light attributes with ID: ${id}, to: ${attributes} - ${e}`);
     throw e;
