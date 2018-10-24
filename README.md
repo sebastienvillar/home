@@ -72,6 +72,15 @@ module.exports = {
 };
 ```
 
+## Add certificate and key in certificate folder
+To create one:
+
+```
+openssl genrsa -out key.pem 2048
+openssl req -new -sha256 -key key.pem -out csr.csr
+openssl req -x509 -sha256 -days 1095 -key key.pem -in csr.csr -out certificate.pem
+```
+
 # Setup daemon
 
 ## Create `/lib/systemd/system/home.service`

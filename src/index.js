@@ -5,10 +5,13 @@ const models = require('./components/models');
 const managers = require('./components/managers');
 const routes = require('./components/routes');
 const express = require('express');
+const http = require('http');
+const https = require('https');
 const basicAuth = require('express-basic-auth');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const requestId = require('express-request-id');
+const fs = require('fs');
 
 async function init() {
   // Init db
@@ -59,7 +62,18 @@ async function init() {
 
   // Start
   const port = process.env.PORT || 8080;
-  app.listen(port);
+  
+  if (process.env.NODE_ENV === 'production') {
+    var key = fs.readFileSync(`${__dirname}/../certificate/key.pem`);
+    var certificate = fs.readFileSync(`${__dirname}/../certificate/certificate.pem`);
+    https.createServer({
+      key: key,
+      cert: certificate,
+    }, app).listen(port);
+  }
+  else {
+    http.createServer(app).listen(port);
+  }
   logger.info(`App listening on port ${port}`);
 }
 
