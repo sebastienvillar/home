@@ -1,6 +1,7 @@
 const config = require('../../config');
 const Constants = require('./constants');
 const winston = require('winston');
+const moment = require('moment-timezone');
 const Transport = require('winston-transport');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
@@ -9,8 +10,14 @@ const nodemailer = require('nodemailer');
 
 const LOG_MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
+const timestampFormat = winston.format((info, opts) => {
+  if (opts.tz)
+    info.timestamp = moment().tz(opts.tz).format();
+  return info;
+});
+
 const format = winston.format.combine(
-  winston.format.timestamp(),
+  timestampFormat({tz: "America/New_York"}),
   winston.format.printf(info => {
     return `${info.timestamp} [${info.level.toUpperCase()}]: ${info.message}`;
   }),
