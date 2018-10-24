@@ -38,8 +38,8 @@ exports.getAll = async function() {
 // Remote
 
 exports.setRemoteAttributesForAll = async function(attributes) {
-  const lights = await exports.getAll();
-  const promises = Object.keys(lights).map(id => exports.setRemoteAttributes(id, attributes));
+  const groups = await exports.getAll();
+  const promises = groups.map(group => exports.setRemoteAttributes(group.id, attributes));
   return Promise.all(promises);
 }
 
