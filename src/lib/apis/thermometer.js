@@ -7,6 +7,11 @@ const runAsync = promisify(PythonShell.run).bind(PythonShell);
 // Public
 
 exports.get = async function() {
+  if (process.env.NODE_ENV !== 'production') {
+    // Debug
+    return 20;
+  }
+  
   const options = {
     mode: 'json',
     scriptPath: 'src/lib/devices/thermometer/',
