@@ -18,12 +18,12 @@ async function init() {
   await db.init();
 
   // Init models
-  for (const model of Object.values(models)) {
+  for (const model of models) {
     await model.init();
   }
 
   // Init managers
-  for (const manager of Object.values(managers)) {
+  for (const manager of managers) {
     await manager.init();
   }
 
@@ -52,7 +52,7 @@ async function init() {
   app.use(morgan(morganFormat));
 
   // Create routes
-  for (const route of Object.values(routes)) {
+  for (const route of routes) {
     for (const [path, methods] of Object.entries(route)) {
       for (const [method, imp] of Object.entries(methods)) {
         app[method](path, imp);

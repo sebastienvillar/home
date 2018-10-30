@@ -1,2 +1,5 @@
-exports.lightsManager = require('./lights/manager');
-exports.thermostatManager = require('./thermostat/manager');
+module.exports = [
+  require('./logs/manager'),
+  require('./lights/manager'),
+  require('./thermostat/manager'),
+];

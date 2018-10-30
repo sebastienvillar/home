@@ -1,5 +1,7 @@
-exports.rootModel = require('./root/model');
-exports.lightsModel = require('./lights/model');
-exports.thermostatModel = require('./thermostat/model');
-exports.usersModel = require('./users/model');
-exports.logsModel = require('./logs/model');
+module.exports = [
+  require('./root/model'),
+  require('./lights/model'),
+  require('./thermostat/model'),
+  require('./users/model'),
+  require('./logs/model'),
+];
